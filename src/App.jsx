@@ -5,6 +5,7 @@ import AuthPage from './pages/AuthPage.jsx';
 import GalleryPage from './pages/GalleryPage.jsx';
 import Background from './components/Background.jsx';
 import ClickSparkles from './components/ClickSparkles.jsx';
+import Footer from './components/Footer.jsx';
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>
+      <Footer />
     </>
   );
 }

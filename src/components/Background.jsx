@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import StarField from './StarField.jsx';
+import { isLowPower } from '../utils.js';
 
 const blobs = [
   { color: 'var(--blob-1)', size: 520, x: '-10%', y: '-15%', dur: 22 },
@@ -16,10 +17,16 @@ const sparkles = Array.from({ length: 14 }, (_, i) => ({
   char: ['✦', '♥', '✧', '❀'][i % 4],
 }));
 
+// Đọc một lần khi tải trang, không cần theo dõi đổi kích thước
+const lowPower = isLowPower();
+
 export default function Background() {
   return (
     <div className="bg" aria-hidden="true">
-      {blobs.map((b, i) => (
+      {blobs.map((b, i) => lowPower ? (
+        // Đốm mờ đứng yên: trình duyệt chỉ cần tính blur một lần thay vì mỗi khung hình
+        <div key={i} className="bg-blob" style={{ background: b.color, width: b.size, height: b.size, left: b.x, top: b.y }} />
+      ) : (
         <motion.div
           key={i}
           className="bg-blob"
@@ -29,7 +36,7 @@ export default function Background() {
         />
       ))}
       <StarField />
-      {sparkles.map((s, i) => (
+      {!lowPower && sparkles.map((s, i) => (
         <motion.span
           key={i}
           className="bg-sparkle"

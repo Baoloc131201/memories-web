@@ -399,6 +399,16 @@ body { transition: background-color 0.4s, color 0.4s; }
   .modal { padding: 24px 18px; }
 }
 
+/* Điện thoại / cảm ứng: bỏ kính mờ và lớp grain vì nền phía sau phải tính lại mỗi khi cuộn */
+@media (max-width: 768px), (pointer: coarse) {
+  .topbar, .auth-card, .footer-inner, .overlay { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .topbar, .footer-inner { background: var(--glass-strong); }
+  .bg-grain { display: none; }
+  .bg-blob { filter: blur(60px); }
+  .bg { transform: translateZ(0); }
+  html { -webkit-tap-highlight-color: transparent; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

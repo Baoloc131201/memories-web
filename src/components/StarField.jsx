@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { isLowPower } from '../utils.js';
 
 // Tông vàng / cam / tím nhạt để nổi trên nền kem
 const COLORS = ['#ffb347', '#ff9f7a', '#f5c26b', '#ff7a59', '#c9a0dc'];
@@ -52,13 +53,18 @@ export default function StarField() {
     const canvas = ref.current;
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Điện thoại: nửa số sao, độ phân giải 1x, 30 khung hình/giây và tạm dừng khi đang cuộn
+    const lowPower = isLowPower();
+    const density = lowPower ? 0.5 : 1;
+    const frameGap = lowPower ? 33 : 0;
+    let scrolling = false, scrollTimer = 0;
     const sprites = makeSprites();
     let w = 0, h = 0, stars = [], meteors = [], raf = 0;
     const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
 
     const spawnStars = () => {
       stars = LAYERS.flatMap((layer, li) =>
-        Array.from({ length: Math.round(w * h * layer.count) }, () => ({
+        Array.from({ length: Math.round(w * h * layer.count * density) }, () => ({
           x: Math.random() * w,
           y: Math.random() * h,
           r: rand(...layer.size),
@@ -72,7 +78,9 @@ export default function StarField() {
     };
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // Trên điện thoại, thanh địa chỉ ẩn/hiện khi cuộn cũng gây resize: chỉ vẽ lại khi chiều ngang đổi
+      if (lowPower && w && window.innerWidth === w) return;
+      const dpr = lowPower ? 1 : Math.min(window.devicePixelRatio || 1, 2);
       w = window.innerWidth;
       h = window.innerHeight;
       canvas.width = w * dpr;
@@ -94,6 +102,12 @@ export default function StarField() {
       });
     };
 
+    const onScroll = () => {
+      scrolling = true;
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => { scrolling = false; }, 150);
+    };
+
     const onMove = (e) => {
       mouse.tx = (e.clientX / w - 0.5) * 2;
       mouse.ty = (e.clientY / h - 0.5) * 2;
@@ -102,6 +116,12 @@ export default function StarField() {
     let last = 0;
     let nextMeteor = 1000;
     function draw(t) {
+      // Bỏ qua khung hình khi tab bị ẩn, đang cuộn (điện thoại) hoặc chưa tới lượt vẽ
+      if (!reduced && (document.hidden || scrolling || (last && t - last < frameGap))) {
+        if (document.hidden || scrolling) last = t;
+        raf = requestAnimationFrame(draw);
+        return;
+      }
       const dt = Math.min(t - last, 50) || 16;
       last = t;
       ctx.clearRect(0, 0, w, h);
@@ -168,10 +188,13 @@ export default function StarField() {
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     if (!reduced) {
       window.addEventListener('pointermove', onMove);
+      if (lowPower) window.addEventListener('scroll', onScroll, { passive: true });
       raf = requestAnimationFrame(draw);
     }
     return () => {
       cancelAnimationFrame(raf);
+      clearTimeout(scrollTimer);
+      window.removeEventListener('scroll', onScroll);
       themeObserver.disconnect();
       window.removeEventListener('resize', resize);
       window.removeEventListener('pointermove', onMove);

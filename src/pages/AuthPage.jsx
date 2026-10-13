@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import SocialLogin from '../components/SocialLogin.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
 
 const polaroids = [
   { rot: -12, x: -70, y: 20, color: '#ffccbc', emoji: '🌅', label: 'Hoàng hôn' },
@@ -138,8 +139,7 @@ export default function AuthPage({ mode }) {
 
             <motion.label variants={item} className="field">
               <span>Mật khẩu</span>
-              <input
-                type="password"
+              <PasswordInput
                 value={form.password}
                 onChange={update('password')}
                 autoComplete={isLogin ? 'current-password' : 'new-password'}

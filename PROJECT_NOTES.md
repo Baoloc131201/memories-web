@@ -248,8 +248,14 @@ src/main/java/com/memories/
 **Trang Login / Register (`pages/AuthPage.jsx`)**
 - Bên trái: logo và 3 tấm polaroid minh hoạ. Bên phải: thẻ form có nền kính mờ.
 - Báo lỗi từ server ngay trên form, nút có hiệu ứng loading 3 chấm.
+- Ô mật khẩu có nút con mắt (`components/PasswordInput.jsx`) để hiện / ẩn mật khẩu, bấm vào thì con trỏ vẫn ở trong ô nhập.
 - Có link chuyển qua lại giữa Đăng nhập và Đăng ký.
 - Có nút **Tiếp tục với Google** và **Tiếp tục với Facebook** (`components/SocialLogin.jsx`), chỉ hiện khi BE đã cấu hình key. SDK của Google và Facebook chỉ được tải khi cần và chỉ tải một lần.
+
+**Trang chờ máy chủ khởi động (`pages/WakingPage.jsx`)**
+- Render gói free ngủ sau 15 phút không có request, lần vào đầu tiên mất khoảng 30–60 giây để máy chủ dậy.
+- Lúc mở trang, `AuthContext` gọi `/api/auth/me`. Quá 2,5 giây chưa xong, hoặc gặp lỗi mạng / `502` / `503` / `504`, thì hiện trang chờ ("The server is starting up, please come back in a minute.") có mặt trăng ngủ và đồng hồ đếm số giây đã chờ.
+- Cứ 3 giây thử lại một lần. Máy chủ dậy thì tự vào app, không cần tải lại trang.
 
 **Trang Album (`pages/GalleryPage.jsx`)**
 - Thanh trên cùng dính khi cuộn, có avatar (chữ cái đầu tên) và nút **Đăng xuất**.
@@ -332,6 +338,7 @@ D:\My-Project-FE
     ├── context/AuthContext.jsx
     ├── pages/
     │   ├── AuthPage.jsx
+    │   ├── WakingPage.jsx  # Trang chờ khi máy chủ Render đang khởi động
     │   └── GalleryPage.jsx
     └── components/
         ├── Background.jsx
@@ -342,6 +349,7 @@ D:\My-Project-FE
         ├── CategoryPicker.jsx # Chọn / tạo phân loại ảnh
         ├── UploadModal.jsx
         ├── SocialLogin.jsx   # Nút đăng nhập Google / Facebook
+        ├── PasswordInput.jsx # Ô mật khẩu có nút con mắt hiện / ẩn
         ├── Modal.jsx
         ├── Lightbox.jsx
         └── SecureImage.jsx

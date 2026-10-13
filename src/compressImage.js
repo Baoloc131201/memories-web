@@ -14,13 +14,31 @@ async function encodeWebpWasm(ctx, canvas) {
   }
 }
 
+// Đọc ảnh để vẽ lên canvas, ảnh tự xoay đúng chiều theo EXIF.
+// Safari không nhận option imageOrientation: 'from-image' của createImageBitmap → dùng thẻ <img>.
+async function loadImage(file) {
+  try {
+    return await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      return { width: img.naturalWidth, height: img.naturalHeight, source: img, close: () => {} };
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+}
+
 export async function compressImage(file) {
   // GIF động sẽ mất chuyển động nếu vẽ qua canvas, nên giữ nguyên
   if (file.type === 'image/gif') return file;
 
   let bitmap;
   try {
-    bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    bitmap = await loadImage(file);
   } catch {
     return file; // trình duyệt không đọc được ảnh → gửi bản gốc
   }
@@ -31,7 +49,7 @@ export async function compressImage(file) {
   canvas.height = Math.round(bitmap.height * scale);
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bitmap.source ?? bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
 
   let blob = await toBlob(canvas, 'image/webp');

@@ -312,7 +312,7 @@ src/main/java/com/memories/
 **Thêm ảnh (`components/UploadModal.jsx`)**
 - Kéo thả hoặc bấm để chọn ảnh, xem trước trước khi lưu.
 - Kiểm tra định dạng và dung lượng (15MB) ngay ở client.
-- **Nén ảnh trước khi upload** (`compressImage.js`): thu nhỏ cạnh dài về tối đa 1920px, chuyển sang WebP chất lượng 80%. Trình duyệt không encode được WebP bằng canvas (Safari) thì encode bằng WASM (`@jsquash/webp`, file `.wasm` ~300KB chỉ tải khi cần). WASM cũng lỗi thì mới dùng JPEG. GIF giữ nguyên để không mất chuyển động. Nếu bản nén lớn hơn bản gốc thì gửi bản gốc. Góc ảnh hiện dung lượng trước → sau (vd. `4.2MB → 380KB`).
+- **Nén ảnh trước khi upload** (`compressImage.js`): thu nhỏ cạnh dài về tối đa 1920px, chuyển sang WebP chất lượng 80%. Trình duyệt không encode được WebP bằng canvas (Safari) thì encode bằng WASM (`@jsquash/webp`, file `.wasm` ~300KB chỉ tải khi cần). WASM cũng lỗi thì mới dùng JPEG. Ảnh được đọc bằng `createImageBitmap`, Safari không hỗ trợ option xoay ảnh theo EXIF thì đọc bằng thẻ `<img>`. GIF giữ nguyên để không mất chuyển động. Nếu bản nén lớn hơn bản gốc thì gửi bản gốc. Góc ảnh hiện dung lượng trước → sau (vd. `4.2MB → 380KB`).
 - Tự điền tiêu đề từ tên file. Chọn được ngày (không quá hôm nay) và thêm ghi chú.
 - **Chọn phân loại** (`components/CategoryPicker.jsx`): các phân loại đã có hiện thành chip để bấm chọn (bấm lần nữa để bỏ chọn). Nút **+ Tạo mục mới** mở ô nhập tên (Enter để thêm, Esc để huỷ). Gõ trùng tên mục có sẵn thì chọn luôn mục đó. Đang lọc theo một phân loại mà bấm *Thêm ảnh* thì phân loại đó được chọn sẵn.
 

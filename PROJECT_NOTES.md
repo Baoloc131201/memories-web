@@ -301,7 +301,7 @@ src/main/java/com/memories/
 - Cứ 3 giây thử lại một lần. Máy chủ dậy thì tự vào app, không cần tải lại trang.
 
 **Trang Album (`pages/GalleryPage.jsx`)**
-- Thanh trên cùng dính khi cuộn, có avatar (chữ cái đầu tên) và nút **Đăng xuất**.
+- Thanh trên cùng (`topbar`) dính khi cuộn: cuộn xuống thì trượt lên ẩn đi, cuộn lên thì hiện lại (luôn hiện khi ở gần đầu trang). Có avatar (chữ cái đầu tên) và nút **Đăng xuất**.
 - Lời chào theo giờ trong ngày, kèm số kỉ niệm và số năm.
 - Ô tìm kiếm lọc theo tiêu đề và ghi chú.
 - **Thanh phân loại** (dưới ô tìm kiếm, chỉ hiện khi đã có phân loại): `Tất cả`, từng phân loại kèm số ảnh, và `Chưa phân loại`. Kết hợp được với ô tìm kiếm. Danh sách phân loại được tính từ chính danh sách ảnh.

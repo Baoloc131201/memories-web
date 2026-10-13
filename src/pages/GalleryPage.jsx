@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
+import { AnimatePresence, LayoutGroup, motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { api } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import MemoryCard from '../components/MemoryCard.jsx';
@@ -84,6 +84,16 @@ export default function GalleryPage() {
     clearImageCache();
   };
 
+  // Cuộn xuống thì ẩn topbar cho rộng chỗ xem ảnh, cuộn lên thì hiện lại. Gần đầu trang thì luôn hiện.
+  const { scrollY } = useScroll();
+  const [hideTopbar, setHideTopbar] = useState(false);
+  useMotionValueEvent(scrollY, 'change', (y) => {
+    const prev = scrollY.getPrevious() ?? 0;
+    if (y < 80) setHideTopbar(false);
+    else if (y > prev) setHideTopbar(true);
+    else if (y < prev) setHideTopbar(false);
+  });
+
   return (
     <motion.main
       className="gallery-page"
@@ -94,9 +104,10 @@ export default function GalleryPage() {
     >
       <motion.header
         className="topbar"
-        initial={{ y: -80 }}
-        animate={{ y: 0 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 24 }}
+        initial={{ y: '-200%' }}
+        // -100% chỉ bằng chiều cao topbar, còn khoảng top 12px và bóng đổ nên đẩy lên -200% cho khuất hẳn
+        animate={{ y: hideTopbar ? '-200%' : '0%' }}
+        transition={{ type: 'spring', stiffness: 260, damping: 30 }}
       >
         <div className="brand small">Kỉ Niệm<span>.</span></div>
         <div className="topbar-right">

@@ -94,7 +94,7 @@ export default function AuthPage({ mode }) {
     try {
       if (isForgot) {
         await api.forgotPassword(form.email);
-        setNotice(`Nếu ${form.email.trim()} đã đăng ký tài khoản, link đặt lại mật khẩu đã được gửi tới hộp thư. Nhớ kiểm tra cả mục Spam nhé.`);
+        setNotice(`Link đặt lại mật khẩu đã được gửi tới ${form.email.trim()}. Nhớ kiểm tra cả mục Spam nhé.`);
       } else {
         await api.resetPassword(token, form.password);
         // Mọi phiên đã bị BE thu hồi; xoá luôn phiên ở trình duyệt này (nếu có) để vào được trang login

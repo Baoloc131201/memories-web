@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { api } from '../api/client.js';
 import SocialLogin from '../components/SocialLogin.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
@@ -21,12 +22,39 @@ const item = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } },
 };
 
+const TEXT = {
+  login: { title: 'Chào mừng trở lại 👋', sub: 'Đăng nhập để xem lại album của bạn', button: 'Đăng nhập' },
+  register: { title: 'Tạo tài khoản ✨', sub: 'Bắt đầu lưu giữ kỉ niệm ngay hôm nay', button: 'Đăng ký' },
+  forgot: { title: 'Quên mật khẩu? 🔑', sub: 'Nhập email đã đăng ký, chúng tôi sẽ gửi link đặt lại mật khẩu', button: 'Gửi link' },
+  reset: { title: 'Đặt mật khẩu mới 🔒', sub: 'Chọn mật khẩu mới cho tài khoản của bạn', button: 'Đổi mật khẩu' },
+};
+
+// mode: login | register | forgot (nhập email nhận link) | reset (mở từ link trong email, có ?token=)
 export default function AuthPage({ mode }) {
   const isLogin = mode === 'login';
-  const { login, register, loginGoogle, loginFacebook } = useAuth();
+  const isRegister = mode === 'register';
+  const isForgot = mode === 'forgot';
+  const isReset = mode === 'reset';
+  const { login, register, loginGoogle, loginFacebook, logout } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: '', displayName: '', password: '' });
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const [form, setForm] = useState({ username: '', email: '', displayName: '', password: '', confirm: '' });
   const [error, setError] = useState('');
+  // Trang khác chuyển sang kèm thông báo (vd. đổi mật khẩu xong → trang login)
+  const [notice, setNotice] = useState(location.state?.notice || '');
+  // Trang đặt lại mật khẩu: kiểm tra link trước khi hiện form (checking | valid | invalid)
+  const [tokenStatus, setTokenStatus] = useState(token ? 'checking' : 'invalid');
+
+  useEffect(() => {
+    if (!isReset || !token) return;
+    let cancelled = false;
+    api.validateResetToken(token)
+      .then(() => !cancelled && setTokenStatus('valid'))
+      .catch(() => !cancelled && setTokenStatus('invalid'));
+    return () => { cancelled = true; };
+  }, [isReset, token]);
   const [busy, setBusy] = useState(false);
   const shakeControls = useAnimationControls();
 
@@ -39,6 +67,7 @@ export default function AuthPage({ mode }) {
 
   const run = async (action) => {
     setError('');
+    setNotice('');
     setBusy(true);
     try {
       await action();
@@ -50,10 +79,39 @@ export default function AuthPage({ mode }) {
     }
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    run(() => (isLogin ? login(form.username, form.password) : register(form)));
+    if (isLogin) return run(() => login(form.username, form.password));
+    if (isRegister) {
+      const { username, email, displayName, password } = form;
+      return run(() => register({ username, email, displayName, password }));
+    }
+    if (isReset && form.password !== form.confirm) return showError('Mật khẩu nhập lại không khớp');
+
+    setError('');
+    setNotice('');
+    setBusy(true);
+    try {
+      if (isForgot) {
+        await api.forgotPassword(form.email);
+        setNotice(`Nếu ${form.email.trim()} đã đăng ký tài khoản, link đặt lại mật khẩu đã được gửi tới hộp thư. Nhớ kiểm tra cả mục Spam nhé.`);
+      } else {
+        await api.resetPassword(token, form.password);
+        // Mọi phiên đã bị BE thu hồi; xoá luôn phiên ở trình duyệt này (nếu có) để vào được trang login
+        await logout();
+        // replace: link có token không còn trong lịch sử, bấm Back không quay lại được
+        navigate('/login', { replace: true, state: { notice: 'Đổi mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.' } });
+        return;
+      }
+    } catch (err) {
+      // Link vừa hết hạn hoặc đã được dùng ở tab khác
+      if (isReset && err.status === 400) setTokenStatus('invalid');
+      showError(err.message);
+    }
+    setBusy(false);
   };
+
+  const showResetForm = isReset && tokenStatus === 'valid';
 
   return (
     <motion.main
@@ -120,33 +178,65 @@ export default function AuthPage({ mode }) {
             animate="show"
             exit={{ opacity: 0, x: -20 }}
           >
-            <motion.h2 variants={item}>{isLogin ? 'Chào mừng trở lại 👋' : 'Tạo tài khoản ✨'}</motion.h2>
-            <motion.p variants={item} className="muted">
-              {isLogin ? 'Đăng nhập để xem lại album của bạn' : 'Bắt đầu lưu giữ kỉ niệm ngay hôm nay'}
-            </motion.p>
+            <motion.h2 variants={item}>{TEXT[mode].title}</motion.h2>
+            <motion.p variants={item} className="muted">{TEXT[mode].sub}</motion.p>
 
-            <motion.label variants={item} className="field">
-              <span>Tên đăng nhập</span>
-              <input value={form.username} onChange={update('username')} autoComplete="username" required minLength={3} />
-            </motion.label>
+            {(isLogin || isRegister) && (
+              <motion.label variants={item} className="field">
+                <span>{isLogin ? 'Tên đăng nhập hoặc email' : 'Tên đăng nhập'}</span>
+                <input value={form.username} onChange={update('username')} autoComplete="username" required minLength={isLogin ? 1 : 3} />
+              </motion.label>
+            )}
 
-            {!isLogin && (
+            {(isRegister || isForgot) && (
+              <motion.label variants={item} className="field">
+                <span>Email</span>
+                <input type="email" value={form.email} onChange={update('email')} autoComplete="email" required maxLength={254} />
+              </motion.label>
+            )}
+
+            {isRegister && (
               <motion.label variants={item} className="field">
                 <span>Tên hiển thị</span>
                 <input value={form.displayName} onChange={update('displayName')} required />
               </motion.label>
             )}
 
-            <motion.label variants={item} className="field">
-              <span>Mật khẩu</span>
-              <PasswordInput
-                value={form.password}
-                onChange={update('password')}
-                autoComplete={isLogin ? 'current-password' : 'new-password'}
-                required
-                minLength={isLogin ? 1 : 6}
-              />
-            </motion.label>
+            {isReset && tokenStatus === 'checking' && (
+              <motion.p variants={item} className="muted">Đang kiểm tra link...</motion.p>
+            )}
+
+            {isReset && tokenStatus === 'invalid' && !error && (
+              <motion.div variants={item} className="error">
+                Link đặt lại mật khẩu đã được sử dụng hoặc đã hết hạn. Hãy yêu cầu gửi link mới.
+              </motion.div>
+            )}
+
+            {(isLogin || isRegister || showResetForm) && (
+              <motion.label variants={item} className="field">
+                <span>{isReset ? 'Mật khẩu mới' : 'Mật khẩu'}</span>
+                <PasswordInput
+                  value={form.password}
+                  onChange={update('password')}
+                  autoComplete={isLogin ? 'current-password' : 'new-password'}
+                  required
+                  minLength={isLogin ? 1 : 6}
+                />
+              </motion.label>
+            )}
+
+            {showResetForm && (
+              <motion.label variants={item} className="field">
+                <span>Nhập lại mật khẩu mới</span>
+                <PasswordInput value={form.confirm} onChange={update('confirm')} autoComplete="new-password" required minLength={6} />
+              </motion.label>
+            )}
+
+            {isLogin && (
+              <motion.p variants={item} className="forgot-link">
+                <Link to="/forgot-password">Quên mật khẩu?</Link>
+              </motion.p>
+            )}
 
             <AnimatePresence>
               {error && (
@@ -159,29 +249,46 @@ export default function AuthPage({ mode }) {
                   {error}
                 </motion.div>
               )}
+              {notice && (
+                <motion.div
+                  className="notice"
+                  role="status"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  {notice}
+                </motion.div>
+              )}
             </AnimatePresence>
 
-            <motion.button
-              variants={item}
-              className="btn btn-primary btn-block"
-              disabled={busy}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              {busy ? <span className="dots"><i /><i /><i /></span> : isLogin ? 'Đăng nhập' : 'Đăng ký'}
-            </motion.button>
+            {(!isReset || showResetForm) && (
+              <motion.button
+                variants={item}
+                className="btn btn-primary btn-block"
+                disabled={busy}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                {busy ? <span className="dots"><i /><i /><i /></span> : TEXT[mode].button}
+              </motion.button>
+            )}
 
-            <SocialLogin
-              variants={item}
-              busy={busy}
-              onGoogle={(credential) => run(() => loginGoogle(credential))}
-              onFacebook={(accessToken) => run(() => loginFacebook(accessToken))}
-              onError={showError}
-            />
+            {(isLogin || isRegister) && (
+              <SocialLogin
+                variants={item}
+                busy={busy}
+                onGoogle={(credential) => run(() => loginGoogle(credential))}
+                onFacebook={(accessToken) => run(() => loginFacebook(accessToken))}
+                onError={showError}
+              />
+            )}
 
             <motion.p variants={item} className="switch">
-              {isLogin ? 'Chưa có tài khoản? ' : 'Đã có tài khoản? '}
-              <Link to={isLogin ? '/register' : '/login'}>{isLogin ? 'Đăng ký' : 'Đăng nhập'}</Link>
+              {isLogin && <>Chưa có tài khoản? <Link to="/register">Đăng ký</Link></>}
+              {isRegister && <>Đã có tài khoản? <Link to="/login">Đăng nhập</Link></>}
+              {isForgot && <>Nhớ ra mật khẩu rồi? <Link to="/login">Đăng nhập</Link></>}
+              {isReset && <><Link to="/forgot-password">Gửi lại link</Link> · <Link to="/login">Đăng nhập</Link></>}
             </motion.p>
           </motion.form>
         </AnimatePresence>

@@ -177,6 +177,10 @@ body { transition: background-color 0.4s, color 0.4s; }
   background: var(--error-bg); color: var(--danger); border: 1px solid var(--error-line);
   padding: 10px 14px; border-radius: 10px; font-size: 14px; margin-bottom: 12px; overflow: hidden;
 }
+.notice {
+  background: var(--tint); color: var(--ink); border: 1px solid var(--line);
+  padding: 10px 14px; border-radius: 10px; font-size: 14px; line-height: 1.5; margin-bottom: 12px; overflow: hidden;
+}
 .error.center { max-width: 600px; margin: 0 auto 20px; text-align: center; }
 
 .dots { display: inline-flex; gap: 5px; }
@@ -223,6 +227,7 @@ body { transition: background-color 0.4s, color 0.4s; }
 }
 .auth-card h2 { font-family: var(--serif); font-size: 30px; margin: 0 0 6px; }
 .auth-card .muted { margin: 0 0 24px; }
+.forgot-link { text-align: right; margin: -6px 0 12px; font-size: 13px; }
 .switch { text-align: center; color: var(--muted); margin: 20px 0 0; font-size: 14px; }
 
 .social { display: grid; gap: 10px; margin-top: 18px; transition: opacity 0.2s; }

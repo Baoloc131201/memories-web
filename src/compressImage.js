@@ -4,6 +4,16 @@ const QUALITY = 0.8;
 
 const toBlob = (canvas, type) => new Promise((resolve) => canvas.toBlob(resolve, type, QUALITY));
 
+async function encodeWebpWasm(ctx, canvas) {
+  try {
+    const { default: encode } = await import('@jsquash/webp/encode');
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    return new Blob([await encode(data, { quality: QUALITY * 100 })], { type: 'image/webp' });
+  } catch {
+    return null;
+  }
+}
+
 export async function compressImage(file) {
   // GIF động sẽ mất chuyển động nếu vẽ qua canvas, nên giữ nguyên
   if (file.type === 'image/gif') return file;
@@ -27,8 +37,10 @@ export async function compressImage(file) {
   let blob = await toBlob(canvas, 'image/webp');
   let type = 'image/webp';
   let ext = '.webp';
-  // Safari cũ không encode được WebP (toBlob trả về PNG) → dùng JPEG, phủ nền trắng cho vùng trong suốt
-  if (!blob || blob.type !== 'image/webp') {
+  // Safari không encode được WebP bằng canvas (toBlob trả về PNG) → encode bằng WASM (chỉ tải khi cần)
+  if (!blob || blob.type !== 'image/webp') blob = await encodeWebpWasm(ctx, canvas);
+  // WASM cũng lỗi (vd. mất mạng khi tải file .wasm) → dùng JPEG, phủ nền trắng cho vùng trong suốt
+  if (!blob) {
     ctx.globalCompositeOperation = 'destination-over';
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);

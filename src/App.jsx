@@ -41,6 +41,9 @@ export default function App() {
         <Routes location={location} key={location.pathname}>
           <Route path="/login" element={<GuestOnly><AuthPage mode="login" /></GuestOnly>} />
           <Route path="/register" element={<GuestOnly><AuthPage mode="register" /></GuestOnly>} />
+          <Route path="/forgot-password" element={<GuestOnly><AuthPage mode="forgot" /></GuestOnly>} />
+          {/* Không chặn khi đang đăng nhập: link trong email có thể được mở ở trình duyệt đang có phiên */}
+          <Route path="/reset-password" element={<AuthPage mode="reset" />} />
           <Route path="/" element={<Protected><GalleryPage /></Protected>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

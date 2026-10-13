@@ -6,7 +6,8 @@ export const setUnauthorizedHandler = (fn) => { onUnauthorized = fn; };
 // Các API này trả 401 vì lý do khác (sai mật khẩu, refresh hết hạn...), không thử refresh
 const NO_REFRESH = [
   '/api/auth/login', '/api/auth/register', '/api/auth/google', '/api/auth/facebook',
-  '/api/auth/refresh', '/api/auth/logout',
+  '/api/auth/refresh', '/api/auth/logout', '/api/auth/forgot-password', '/api/auth/reset-password',
+  '/api/auth/reset-password/validate',
 ];
 
 // Nhiều request hết hạn cùng lúc (vd. tải nhiều ảnh) chỉ gọi refresh một lần
@@ -51,6 +52,9 @@ async function request(path, { method = 'GET', body, raw = false } = {}) {
 export const api = {
   login: (username, password) => request('/api/auth/login', { method: 'POST', body: { username, password } }),
   register: (data) => request('/api/auth/register', { method: 'POST', body: data }),
+  forgotPassword: (email) => request('/api/auth/forgot-password', { method: 'POST', body: { email } }),
+  validateResetToken: (token) => request('/api/auth/reset-password/validate', { method: 'POST', body: { token } }),
+  resetPassword: (token, password) => request('/api/auth/reset-password', { method: 'POST', body: { token, password } }),
   loginGoogle: (credential) => request('/api/auth/google', { method: 'POST', body: { credential } }),
   loginFacebook: (accessToken) => request('/api/auth/facebook', { method: 'POST', body: { accessToken } }),
   providers: () => request('/api/auth/providers'),

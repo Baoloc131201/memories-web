@@ -229,7 +229,10 @@ body { transition: background-color 0.4s, color 0.4s; }
 .social.is-busy { opacity: 0.6; pointer-events: none; }
 .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-.google-btn { display: flex; justify-content: center; min-height: 40px; }
+.google-btn { justify-self: center; width: fit-content; min-height: 40px; border-radius: 999px; }
+/* iframe của Google là trang sáng; trang mình đang tối thì trình duyệt tô nền trắng sau iframe.
+   Đặt cùng color-scheme với nội dung iframe để nền trong suốt lại */
+.google-btn iframe { color-scheme: light; }
 .fb-btn {
   display: flex; align-items: center; justify-content: center; gap: 10px;
   width: 100%; max-width: 400px; height: 40px; justify-self: center;

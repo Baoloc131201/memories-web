@@ -33,6 +33,7 @@ const FacebookIcon = () => (
 export default function SocialLogin({ onGoogle, onFacebook, onError, busy, variants }) {
   const [providers, setProviders] = useState(null);
   const [fbReady, setFbReady] = useState(false);
+  const [googleWidth, setGoogleWidth] = useState(null);
   const googleRef = useRef(null);
   const latest = useRef();
   latest.current = { onGoogle, onError };
@@ -56,10 +57,19 @@ export default function SocialLogin({ onGoogle, onFacebook, onError, busy, varia
         }
         window.google.accounts.id.renderButton(googleRef.current, {
           theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: 'vi',
-          width: Math.min(400, googleRef.current.offsetWidth || 400),
+          width: Math.min(400, googleRef.current.parentElement.clientWidth || 400),
         });
       })
       .catch(() => latest.current.onError('Không tải được Google, kiểm tra kết nối mạng'));
+  }, [providers]);
+
+  // Google tự quyết độ rộng thật của nút, nên đo lại để nút Facebook rộng bằng nút Google
+  useEffect(() => {
+    const el = googleRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => el.offsetWidth && setGoogleWidth(el.offsetWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [providers]);
 
   useEffect(() => {
@@ -92,7 +102,13 @@ export default function SocialLogin({ onGoogle, onFacebook, onError, busy, varia
       <div className="divider"><span>hoặc</span></div>
       {providers.googleClientId && <div ref={googleRef} className="google-btn" />}
       {providers.facebookAppId && (
-        <button type="button" className="fb-btn" onClick={loginFacebook} disabled={!fbReady || busy}>
+        <button
+          type="button"
+          className="fb-btn"
+          style={googleWidth ? { maxWidth: googleWidth } : undefined}
+          onClick={loginFacebook}
+          disabled={!fbReady || busy}
+        >
           <FacebookIcon /> Tiếp tục với Facebook
         </button>
       )}

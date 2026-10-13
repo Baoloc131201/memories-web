@@ -6,6 +6,7 @@ import GalleryPage from './pages/GalleryPage.jsx';
 import Background from './components/Background.jsx';
 import ClickSparkles from './components/ClickSparkles.jsx';
 import Footer from './components/Footer.jsx';
+import WakingPage from './pages/WakingPage.jsx';
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -18,8 +19,10 @@ function GuestOnly({ children }) {
 }
 
 export default function App() {
-  const { loading } = useAuth();
+  const { loading, waking } = useAuth();
   const location = useLocation();
+
+  if (waking) return <WakingPage />;
 
   if (loading) {
     return (

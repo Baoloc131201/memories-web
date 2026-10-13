@@ -40,7 +40,9 @@ async function request(path, { method = 'GET', body, raw = false } = {}) {
   if (!res.ok) {
     let message = 'Có lỗi xảy ra, thử lại nhé';
     try { message = (await res.json()).message || message; } catch { /* body rỗng */ }
-    throw new Error(message);
+    const err = new Error(message);
+    err.status = res.status;
+    throw err;
   }
   if (raw) return res;
   return res.status === 204 ? null : res.json();

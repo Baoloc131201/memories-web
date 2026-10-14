@@ -1,0 +1,43 @@
+/* Style chung cho các trang tĩnh privacy.html và data-deletion.html (không đi qua React) */
+:root {
+  --bg: #fdf8f3;
+  --paper: #ffffff;
+  --ink: #2d2420;
+  --muted: #8a7b72;
+  --line: #ecdfd4;
+  --accent: #ff7a59;
+  --tint: #fff0ea;
+  --shadow: 0 10px 30px -12px rgba(80, 45, 20, 0.25);
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --bg: #15111d;
+  --paper: #221b2b;
+  --ink: #f3e9e2;
+  --muted: #a99ba8;
+  --line: #3a3045;
+  --tint: rgba(255, 122, 89, 0.16);
+  --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.7 'Be Vietnam Pro', system-ui, sans-serif;
+  padding: clamp(16px, 5vw, 48px);
+}
+main {
+  max-width: 760px; margin: 0 auto; padding: clamp(24px, 5vw, 48px);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
+}
+.home { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; text-decoration: none; }
+.home:hover { color: var(--accent); }
+h1 { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(28px, 5vw, 38px); line-height: 1.2; margin: 18px 0 4px; }
+h2 { font-size: 19px; margin: 32px 0 8px; }
+.updated { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+a { color: var(--accent); }
+ul, ol { padding-left: 22px; }
+li { margin: 4px 0; }
+.note { background: var(--tint); border-radius: 12px; padding: 14px 18px; margin: 20px 0; }
+footer { max-width: 760px; margin: 20px auto 0; text-align: center; color: var(--muted); font-size: 13px; }
+footer a { margin: 0 8px; }

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/legal.css" />
+    <title>Chính sách quyền riêng tư – Kỉ Niệm</title>
+    <script>
+      // Dùng chung theme với web chính (lưu trong localStorage)
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('theme'); } catch (e) {}
+        if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+  </head>
+  <body>
+    <main>
+      <a class="home" href="/">← Về trang chủ Kỉ Niệm</a>
+      <h1>Chính sách quyền riêng tư</h1>
+
+      <p>
+        Kỉ Niệm (<a href="https://memories-web-8q7.pages.dev">memories-web-8q7.pages.dev</a>) là web cá nhân giúp
+        người dùng lưu trữ và sắp xếp ảnh kỷ niệm. Trang này giải thích chúng tôi thu thập dữ liệu gì, dùng vào việc
+        gì và bạn có những quyền gì với dữ liệu của mình.
+      </p>
+
+      <h2>1. Dữ liệu chúng tôi thu thập</h2>
+      <ul>
+        <li><strong>Thông tin tài khoản:</strong> tên đăng nhập, tên hiển thị, email và mật khẩu (mật khẩu được mã hoá, chúng tôi không đọc được).</li>
+        <li>
+          <strong>Khi đăng nhập bằng Facebook hoặc Google:</strong> chỉ lấy ID tài khoản, tên và email (nếu bạn cho phép).
+          Với Facebook, chúng tôi chỉ xin hai quyền <code>public_profile</code> và <code>email</code>. Chúng tôi
+          <strong>không</strong> đọc bạn bè, bài viết, ảnh hay bất kỳ dữ liệu nào khác trên Facebook của bạn,
+          và không đăng gì lên Facebook thay bạn.
+        </li>
+        <li><strong>Nội dung bạn tải lên:</strong> ảnh, tiêu đề, mô tả và phân loại của ảnh.</li>
+        <li><strong>Cookie đăng nhập:</strong> chỉ dùng để giữ phiên đăng nhập. Chúng tôi không dùng cookie quảng cáo hay công cụ theo dõi.</li>
+      </ul>
+
+      <h2>2. Chúng tôi dùng dữ liệu để làm gì</h2>
+      <ul>
+        <li>Tạo tài khoản và cho bạn đăng nhập.</li>
+        <li>Lưu và hiển thị ảnh kỷ niệm của bạn. Ảnh của bạn chỉ bạn xem được.</li>
+        <li>Gửi email đặt lại mật khẩu khi bạn yêu cầu.</li>
+      </ul>
+      <p>Chúng tôi <strong>không bán, không cho thuê và không chia sẻ</strong> dữ liệu của bạn cho bên thứ ba vì mục đích quảng cáo hay thương mại.</p>
+
+      <h2>3. Dữ liệu được lưu ở đâu</h2>
+      <p>
+        Dữ liệu được lưu trong cơ sở dữ liệu trên <strong>Neon</strong> (PostgreSQL). Máy chủ chạy trên
+        <strong>Render</strong>, giao diện web chạy trên <strong>Cloudflare Pages</strong>. Email đặt lại mật khẩu được
+        gửi qua dịch vụ gửi email. Các nhà cung cấp này chỉ xử lý dữ liệu để vận hành web, mọi kết nối đều dùng HTTPS.
+      </p>
+
+      <h2>4. Thời gian lưu trữ</h2>
+      <p>Dữ liệu được giữ cho đến khi bạn xoá ảnh hoặc yêu cầu xoá tài khoản.</p>
+
+      <h2>5. Quyền của bạn</h2>
+      <ul>
+        <li>Xem, sửa và xoá từng ảnh ngay trong web.</li>
+        <li>Yêu cầu xoá toàn bộ tài khoản và dữ liệu, xem <a href="/data-deletion.html">hướng dẫn xoá dữ liệu</a>.</li>
+        <li>Gỡ quyền truy cập của Kỉ Niệm trong phần cài đặt Facebook hoặc Google bất cứ lúc nào.</li>
+      </ul>
+
+      <h2>6. Thay đổi chính sách</h2>
+      <p>Khi chính sách thay đổi, chúng tôi sẽ cập nhật trang này và ngày "Cập nhật lần cuối" ở trên.</p>
+
+      <h2>7. Liên hệ</h2>
+      <p>
+        Huỳnh Bảo Lộc<br />
+        Email: <a href="mailto:baoloc131201@gmail.com">baoloc131201@gmail.com</a><br />
+        Điện thoại: <a href="tel:0337041207">0337 041 207</a>
+      </p>
+    </main>
+    <footer>
+      <a href="/">Trang chủ</a>·<a href="/data-deletion.html">Xoá dữ liệu</a>
+    </footer>
+  </body>
+</html>

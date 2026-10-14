@@ -34,7 +34,14 @@ export default function Footer() {
           ))}
         </ul>
       </div>
-      <div className="footer-bottom muted">© {new Date().getFullYear()} Huỳnh Bảo Lộc</div>
+      <div className="footer-bottom muted">
+        © {new Date().getFullYear()} Huỳnh Bảo Lộc
+        {/* Trang tĩnh trong public/, dùng <a> thường để tải trang mới thay vì đi qua React Router */}
+        <span className="footer-links">
+          <a href="/privacy.html">Chính sách quyền riêng tư</a>
+          <a href="/data-deletion.html">Xoá dữ liệu</a>
+        </span>
+      </div>
     </footer>
   );
 }
